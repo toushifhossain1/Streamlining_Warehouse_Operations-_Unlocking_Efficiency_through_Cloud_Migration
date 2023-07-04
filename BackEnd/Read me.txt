@@ -1,0 +1,4 @@
+Open command line
+type node app.js and press enter to start
+use ctrl + c to close node app.js
+open index.html to show data while app.js is up

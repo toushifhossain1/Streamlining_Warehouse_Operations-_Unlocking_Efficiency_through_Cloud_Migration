@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web View</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="top-middle">
+        <img src="topPic.png" alt="" height="300px" width="600px">
+    </div>
+
+    <!-- Warehouse Selection Buttons -->
+    <div class="warehouse-buttons">
+        <button class="warehouse-btn active" data-warehouse="Warehouse 1">Warehouse 1</button>
+        <button class="warehouse-btn" data-warehouse="Warehouse 2">Warehouse 2</button>
+        <button class="warehouse-btn" data-warehouse="Warehouse 3">Warehouse 3</button>
+        <button class="warehouse-btn" data-warehouse="Warehouse 4">Warehouse 4</button>
+    </div>
+
+    <!-- Data Insertion Form -->
+    <div class="data-insertion">
+        <h2>Data Insertion</h2>
+        <form id="insert-form">
+            <label for="warehouse-select">Warehouse:</label>
+            <select id="warehouse-select" name="warehouse">
+                <option value="Warehouse 1">Warehouse 1</option>
+                <option value="Warehouse 2">Warehouse 2</option>
+                <option value="Warehouse 3">Warehouse 3</option>
+                <option value="Warehouse 4">Warehouse 4</option>
+            </select>
+            <br>
+            <label for="datetime">Date and Time:</label>
+            <input type="datetime-local" id="datetime" name="datetime" required>
+            <br>
+            <label for="temperature">Temperature:</label>
+            <input type="number" id="temperature" name="temperature" step="0.01" required>
+            <br>
+            <label for="humidity">Humidity:</label>
+            <input type="number" id="humidity" name="humidity" step="0.01" required>
+            <br>
+            <label for="methane">Methane Emission:</label>
+            <input type="number" id="methane" name="methane" step="0.01" required>
+            <br>
+            <input type="submit" value="Insert">
+        </form>
+    </div>
+
+    <!-- Data Display and Charts -->
+    <div id="data" class="data"></div>
+
+    <div class="chart">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <div class="chart">
+        <canvas id="myTempChart"></canvas>
+    </div>
+
+    <div class="chart">
+        <canvas id="myHumidityChart"></canvas>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.1.1/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
