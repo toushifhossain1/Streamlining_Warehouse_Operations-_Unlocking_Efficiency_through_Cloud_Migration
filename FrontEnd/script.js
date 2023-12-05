@@ -40,6 +40,7 @@ $(document).ready(function () {
     function insertData(data) {
         // Perform an AJAX POST request to the server
         $.ajax({
+            //http://banckedloadbalancer-915018401.ap-southeast-1.elb.amazonaws.com/
             url: "http://192.168.1.119:8000/insert",
             type: "POST",
             data: JSON.stringify(data),
@@ -59,7 +60,7 @@ $(document).ready(function () {
     // Function to get data from the server and update the displayed data
     function getData() {
         // Perform an AJAX GET request to the server
-        $.get("http://192.168.1.119:8000/data?warehouse=" + selectedWarehouse, function (data) {
+        $.get("http://backendloadbalancer-1996574208.ap-southeast-1.elb.amazonaws.com:8000/data?warehouse=" + selectedWarehouse, function (data) {
             var html = "";
 
             for (var i = 0; i < data.length; i++) {
@@ -102,6 +103,58 @@ $(document).ready(function () {
         });
     }
 
+    // Download CSV Button Click Event
+    $("#download-csv-btn").click(function () {
+        // Fetch data from the server
+        $.get("http://192.168.1.119:8000/data?warehouse=" + selectedWarehouse, function (data) {
+            // Create the CSV string
+            var csvString = createCSVString(data);
+
+            // Create a Blob object
+            var blob = new Blob([csvString], { type: 'text/csv' });
+
+            // Create a temporary download link
+            var downloadLink = URL.createObjectURL(blob);
+
+            // Create a hidden anchor element
+            var anchor = document.createElement('a');
+            anchor.href = downloadLink;
+            anchor.download = 'data.csv';
+            anchor.style.display = 'none';
+
+            // Simulate a click event on the anchor element
+            document.body.appendChild(anchor);
+            anchor.click();
+
+            // Clean up the temporary download link
+            URL.revokeObjectURL(downloadLink);
+            document.body.removeChild(anchor);
+        });
+    });
+
+    // Create the CSV string from the fetched data
+    function createCSVString(data) {
+        // Here, format the 'data' object/array into a CSV string
+        // Each row should be separated by a line break ('\n')
+        // and each value within a row should be separated by a comma (',')
+        // Customize this function based on the structure of your fetched data
+
+        // Example: Assuming 'data' is an array of objects with 'datetime', 'temperature', 'humidity', 'methane' properties
+        var csvRows = data.map(function (entry) {
+            return [
+                entry.data.datetime,
+                entry.data.temperature,
+                entry.data.humidity,
+                entry.data.methane
+            ].join(',');
+        });
+
+        // Add header row
+        var headerRow = ['Datetime', 'Temperature', 'Humidity', 'Methane'].join(',');
+        csvRows.unshift(headerRow);
+
+        return csvRows.join('\n');
+    }
 
     // Call the getData function initially to populate the data based on the default selected warehouse
     getData();

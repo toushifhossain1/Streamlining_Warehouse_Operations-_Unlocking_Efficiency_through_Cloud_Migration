@@ -1,0 +1,12 @@
+mongoexport --uri "mongodb+srv://warehouse:1234@warehouse.3y1ta1t.mongodb.net/?retryWrites=true&w=majority" --collection warehouses --type csv --fields <warehouse,datetime,temperature,humidity,methane> --out E:\SENIOR PROJECT\Cloud Computing\Implementation\ReImplementing\MongoDB_CSV
+
+
+mongoexport --uri "mongodb+srv://<username>:<password>@<cluster-url>/<database>" --collection warehouses --type csv --fields warehouse,datetime,temperature,humidity,methane --out /path/to/output.csv
+
+
+
+mongoexport --uri mongodb+srv://warehouse:1234@warehouse.3y1ta1t.mongodb.net/<DATABASE> --collection warehouses --type csv --out E:\SENIOR PROJECT\Cloud Computing\Implementation\ReImplementing\MongoDB_CSV\outpu.csv
+
+
+
+mongoexport --uri "mongodb+srv://warehouse:1234@warehouse.3y1ta1t.mongodb.net/<database>" --collection warehouses --type csv --fields warehouse,datetime,temperature,humidity,methane --out "C:\path\to\output.csv"

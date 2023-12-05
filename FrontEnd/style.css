@@ -1,3 +1,13 @@
+.warehouse-buttons {
+    margin-bottom: 20px;
+}
+
+.warehouse-btn {
+    margin-right: 10px;
+}
+
+
+
 .top-middle {
     height: 310px;
     display: flex;
