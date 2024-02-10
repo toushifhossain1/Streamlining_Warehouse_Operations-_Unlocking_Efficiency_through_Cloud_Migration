@@ -116,7 +116,6 @@ String SendHTML(float Temperaturestat, float Humiditystat, float GasValueStat) {
   ptr += "function autoRefresh(){";
   ptr += "window.location = window.location.href;";
   ptr += "}\n";
-  ptr += "setInterval('autoRefresh()',100000)";
   ptr += "</script>\n";
   ptr += "</body>\n";
   ptr += "</html>\n";

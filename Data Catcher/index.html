@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Fetch and Send</title>
+</head>
+
+<body>
+
+    <script>
+        // Function to fetch data from the source API
+        async function fetchDataFromSource() {
+            try {
+                const response = await fetch('http://192.168.1.93/data');
+                const textData = await response.text(); // Use text() instead of json()
+
+                // Return the entire response as text
+                return textData;
+            } catch (error) {
+                console.error('Error fetching data from source:', error);
+                return null;
+            }
+        }
+
+        // Function to send data to the backend API
+        async function sendDataToBackend(data) {
+            try {
+                const response = await fetch('http://localhost:8000/store-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ data: data }) // Sending the encrypted data
+                });
+
+                if (response.ok) {
+                    console.log('Data sent to backend successfully!');
+                } else {
+                    console.error('Failed to send data to backend:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error sending data to backend:', error);
+            }
+        }
+
+        // Fetch data every 30 seconds and send it to the backend
+        setInterval(async () => {
+            const fetchedData = await fetchDataFromSource();
+            if (fetchedData) {
+                sendDataToBackend(fetchedData);
+            }
+        }, 30000);
+    </script>
+
+
+
+</body>
+
+</html>

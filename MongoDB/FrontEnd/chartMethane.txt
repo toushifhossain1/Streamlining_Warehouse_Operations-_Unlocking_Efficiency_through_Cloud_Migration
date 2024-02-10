@@ -1,0 +1,84 @@
+// for methane
+            const ctx = document.getElementById("myChart").getContext("2d");
+
+
+            const labels = [
+                "0",
+
+            ];
+            for (i = 0; i < data.length; i++) {
+                console.log(data[i].methane)
+                labels.push(data[i].timestamp)
+            }
+
+
+
+            // var datetimeString = data[i].timestamp;
+            var MethaneArray = [0]
+
+            for (i = 0; i < data.length; i++) {
+                //console.log(data[i].methane)
+
+                MethaneArray.push(data[i].methane)
+            }
+
+
+            const dota = {
+                labels,
+                datasets: [
+                    {
+                        data: MethaneArray,
+                        label: "Methane",
+                    },
+                ],
+            };
+            const config = {
+                type: 'line',
+                data: dota,
+                options: {
+                    //responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date and Time',
+                                font: {
+                                    size: 24,
+                                },
+                                color: 'limegreen'
+
+                            },
+
+
+                            ticks: {
+                                font: {
+                                    size: 24,
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Methane',
+                                font: {
+                                    size: 24,
+                                },
+                                color: 'limegreen'
+
+                            },
+                            ticks: {
+
+                                font: {
+                                    size: 24,
+                                }
+                            }
+                        }
+                    },
+
+
+                },
+
+            };
+            const myChart = new Chart(ctx, config);
+
+            // Methane Chart End

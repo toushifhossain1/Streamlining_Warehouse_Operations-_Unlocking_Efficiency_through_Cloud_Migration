@@ -1,60 +1,59 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const mongoose = require("mongoose");
+const mysql = require("mysql");
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
 // Database connection
-
-mongoose.connect("mongodb+srv://warehouse:1234@warehouse.3y1ta1t.mongodb.net/?retryWrites=true&w=majority", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "Connection error:"));
-db.once("open", () => {
-    console.log("Connected to MongoDB");
+const db = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "", // Enter your MySQL password here
+    database: "wms"
 });
 
-// Warehouse schema
-const warehouseSchema = new mongoose.Schema({
-    warehouse: String,
-    data: Object,
-});
-const Warehouse = mongoose.model("Warehouse", warehouseSchema);
-
-// Insert Data Endpoint
-app.post("/insert", async (req, res) => {
-    const data = req.body;
-    const warehouse = data.warehouse;
-
-    try {
-        // Save data to the database
-        const newWarehouse = new Warehouse({ warehouse, data });
-        await newWarehouse.save();
-        console.log(`Data inserted for ${warehouse}`);
-        res.status(200).json({ message: "Data inserted successfully" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error inserting data" });
+db.connect((err) => {
+    if (err) {
+        throw err;
     }
+    console.log("Connected to MySQL Database");
 });
 
-// Retrieve Data Endpoint
-app.get("/data", async (req, res) => {
-    const warehouse = req.query.warehouse;
+// Store Data Endpoint
+app.post("/store-data", (req, res) => {
+    const { data } = req.body;
 
-    try {
-        // Retrieve data from the database for the specified warehouse
-        const data = await Warehouse.find({ warehouse });
-        res.status(200).json(data);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error retrieving data" });
-    }
+    const encryptedData = data;
+
+    const sql = "INSERT INTO warehouseonedata (EncryptedData) VALUES (?)";
+    const values = [encryptedData];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error("Error storing data:", err);
+            res.status(500).json({ message: "Error storing data" });
+        } else {
+            console.log("Data stored successfully!");
+            res.status(200).json({ message: "Data stored successfully" });
+        }
+    });
+});
+
+
+// Retrieve All Data Endpoint
+app.get("/all-data", (req, res) => {
+    const sql = "SELECT * FROM warehouseonedata";
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.error("Error retrieving data:", err);
+            res.status(500).json({ message: "Error retrieving data" });
+        } else {
+            res.status(200).json(result);
+        }
+    });
 });
 
 // Start the server

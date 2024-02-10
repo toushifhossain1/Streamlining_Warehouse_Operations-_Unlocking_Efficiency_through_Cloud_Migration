@@ -1,0 +1,162 @@
+$(document).ready(function () {
+    var selectedWarehouse = "Warehouse 3"; // Default selected warehouse
+
+    // Warehouse Selection Button Click Event
+    $(".warehouse-btn").click(function () {
+        // Remove active class from all buttons
+        $(".warehouse-btn").removeClass("active");
+
+        // Add active class to the clicked button
+        $(this).addClass("active");
+
+        // Get the selected warehouse
+        selectedWarehouse = $(this).data("warehouse");
+
+        // Call the getData function to update the displayed data based on the selected warehouse
+        getData();
+    });
+
+    // Data Insertion Form Submit Event
+    $("#insert-form").submit(function (event) {
+        event.preventDefault();
+
+        // Get the form data
+        var formData = {
+            warehouse: $("#warehouse-select").val(),
+            datetime: $("#datetime").val(),
+            temperature: parseFloat($("#temperature").val()),
+            humidity: parseFloat($("#humidity").val()),
+            methane: parseFloat($("#methane").val())
+        };
+
+        // Insert the data into the database
+        insertData(formData);
+
+        // Reset the form
+        $("#insert-form")[0].reset();
+    });
+
+    // Function to insert data into the database
+    function insertData(data) {
+        // Perform an AJAX POST request to the server
+        $.ajax({
+            //http://banckedloadbalancer-915018401.ap-southeast-1.elb.amazonaws.com/
+            url: "http://192.168.1.119:8000/insert",
+            type: "POST",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: function () {
+                console.log("Data inserted successfully!");
+
+                // Refresh the displayed data based on the selected warehouse
+                getData();
+            },
+            error: function (error) {
+                console.error("Error inserting data:", error);
+            }
+        });
+    }
+
+    // Function to get data from the server and update the displayed data
+    function getData() {
+        // Perform an AJAX GET request to the server
+        //$.get("http://backendloadbalancer-1996574208.ap-southeast-1.elb.amazonaws.com:8000/data?warehouse=" + selectedWarehouse, function (data) {
+        $.get("http://192.168.1.119:8000/data?warehouse=" + selectedWarehouse, function (data) {
+            var html = "";
+
+            for (var i = 0; i < data.length; i++) {
+                // Format the date and time
+                var datetimeString = data[i].data.datetime;
+
+                // Extract the date and time components
+                var datetimeArray = datetimeString.split("T");
+                var dateString = datetimeArray[0];
+                var timeString = datetimeArray[1].substring(0, 5);
+
+                console.log("Date: " + dateString);
+                console.log("Time: " + timeString);
+
+                // Access the data properties correctly
+                var temperature = data[i].data.temperature;
+                var humidity = data[i].data.humidity;
+                var methane = data[i].data.methane;
+
+                // Calculate the lifespan remaining
+                var lifespan_constant = 1000;
+                var lifespanInDays = (humidity / 100.0) * Math.exp(0.05 * (temperature - 20.0)) * (lifespan_constant / methane);
+                var lifespanDays = Math.floor(lifespanInDays);
+                var lifespanHours = Math.floor((lifespanInDays - lifespanDays) * 24);
+                var lifespanMinutes = Math.floor((((lifespanInDays - lifespanDays) * 24) - lifespanHours) * 60);
+
+                // Generate the HTML for the data
+                html += "<div style='border: 1px solid black; padding: 10px;'>";
+                html += "<p>Date: " + dateString + "</p>";
+                html += "<p>Time: " + timeString + "</p>";
+                html += "<p>Temperature: " + temperature + " C</p>";
+                html += "<p>Humidity: " + humidity + "%</p>";
+                html += "<p>Methane Emission: " + methane + " ml</p>";
+                html += "<p>Lifespan Remaining: " + lifespanDays + " Day(s) - " + lifespanHours + " Hour(s) - " + lifespanMinutes + " Min(s)</p>";
+                html += "</div>";
+            }
+
+            // Update the displayed data
+            $("#data").html(html);
+        });
+    }
+
+    // Download CSV Button Click Event
+    $("#download-csv-btn").click(function () {
+        // Fetch data from the server
+        $.get("http://192.168.1.119:8000/data?warehouse=" + selectedWarehouse, function (data) {
+            // Create the CSV string
+            var csvString = createCSVString(data);
+
+            // Create a Blob object
+            var blob = new Blob([csvString], { type: 'text/csv' });
+
+            // Create a temporary download link
+            var downloadLink = URL.createObjectURL(blob);
+
+            // Create a hidden anchor element
+            var anchor = document.createElement('a');
+            anchor.href = downloadLink;
+            anchor.download = 'data.csv';
+            anchor.style.display = 'none';
+
+            // Simulate a click event on the anchor element
+            document.body.appendChild(anchor);
+            anchor.click();
+
+            // Clean up the temporary download link
+            URL.revokeObjectURL(downloadLink);
+            document.body.removeChild(anchor);
+        });
+    });
+
+    // Create the CSV string from the fetched data
+    function createCSVString(data) {
+        // Here, format the 'data' object/array into a CSV string
+        // Each row should be separated by a line break ('\n')
+        // and each value within a row should be separated by a comma (',')
+        // Customize this function based on the structure of your fetched data
+
+        // Example: Assuming 'data' is an array of objects with 'datetime', 'temperature', 'humidity', 'methane' properties
+        var csvRows = data.map(function (entry) {
+            return [
+                entry.data.datetime,
+                entry.data.temperature,
+                entry.data.humidity,
+                entry.data.methane
+            ].join(',');
+        });
+
+        // Add header row
+        var headerRow = ['Datetime', 'Temperature', 'Humidity', 'Methane'].join(',');
+        csvRows.unshift(headerRow);
+
+        return csvRows.join('\n');
+    }
+
+    // Call the getData function initially to populate the data based on the default selected warehouse
+    getData();
+});

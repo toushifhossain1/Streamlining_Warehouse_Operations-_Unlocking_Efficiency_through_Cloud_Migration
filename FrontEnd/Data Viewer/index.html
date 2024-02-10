@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Data Display</title>
+    <!-- Add any necessary CSS styles or include external libraries -->
+</head>
+
+<body>
+    <div id="data-display">
+    </div>
+
+    <script>
+        // XOR decryption function
+        function xorDecrypt(data, key) {
+            let decryptedData = '';
+            for (let i = 0; i < data.length; i++) {
+                decryptedData += String.fromCharCode(data.charCodeAt(i) ^ key);
+            }
+            return decryptedData;
+        }
+
+        // Function to fetch data from the backend API
+        async function fetchDataFromBackend() {
+            try {
+                const response = await fetch('http://localhost:3000/api-endpoint'); // From the data forwarder
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching data from backend:', error);
+                return null;
+            }
+        }
+
+        // Function to display fetched data on the webpage
+        // Function to display fetched data on the webpage
+        function displayDataOnPage(data) {
+            const dataDisplay = document.getElementById('data-display');
+            dataDisplay.innerHTML = ''; // Clear existing content
+
+            if (data && data.length > 0) {
+                const table = document.createElement('table');
+                const tableBody = document.createElement('tbody');
+
+                // Create table header
+                const headerRow = tableBody.insertRow();
+                ['Timestamp', 'Temperature', 'Humidity', 'Gas', 'DecryptedData'].forEach(header => {
+                    const cell = headerRow.insertCell();
+                    cell.appendChild(document.createTextNode(header));
+                });
+
+                // Populate the table with data
+                data.forEach(entry => {
+                    const row = tableBody.insertRow();
+
+                    // Decrypt the EncryptedData
+                    const decryptedData = xorDecrypt(entry.EncryptedData, 0x5A);
+
+                    // Parse the decrypted data
+                    let parsedData;
+                    try {
+                        parsedData = JSON.parse(decryptedData);
+                    } catch (error) {
+                        console.error('Error parsing decrypted data:', error);
+                        parsedData = {};
+                    }
+
+                    // Store parsed data in variables
+                    const timestamp = entry.timestamp;
+                    const temperature = parsedData.Temperature;
+                    const humidity = parsedData.Humidity;
+                    const gas = parsedData.gasValue;
+
+                    // Add data to the row
+                    [timestamp, temperature, humidity, gas, decryptedData].forEach(value => {
+                        const cell = row.insertCell();
+                        cell.appendChild(document.createTextNode(value !== undefined ? value : 'N/A'));
+                    });
+                });
+
+                table.appendChild(tableBody);
+                dataDisplay.appendChild(table);
+            } else {
+                // If no data is available, reload the page after a delay
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 5000); // Reload after 5 seconds (adjust as needed)
+            }
+        }
+
+        // Fetch and display data from the backend initially and set up interval for updates
+        async function fetchDataAndDisplay() {
+            try {
+                const data = await fetchDataFromBackend();
+                displayDataOnPage(data);
+            } catch (error) {
+                console.error('Error fetching and displaying data:', error);
+            }
+        }
+
+        // Fetch and display data initially
+        fetchDataAndDisplay();
+
+        // Set up an interval to fetch and display data every 2000 milliseconds (2 seconds)
+        const refreshInterval = 2000;
+        setInterval(fetchDataAndDisplay, refreshInterval);
+    </script>
+</body>
+
+</html>
